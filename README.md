@@ -1,13 +1,13 @@
 
 ## Description
 
-This Repo implements the Token bucket algorithm for request rate limitation, using NestJs and Redis.
+This Repo implements the Token bucket algorithm for request rate limit per user, using NestJs and Redis.
 
 
 ## Installation
 
 ```bash
-# Start a redis via docker:
+# Start a Redis via docker:
 $ docker run -p 6379:6379 -it redis/redis-stack-server:latest
 ```
 
