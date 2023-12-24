@@ -14,11 +14,11 @@ export class RateLimiterMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     const apiKey = req.query['apiKey'] as string;
-    const isValidApiKey = await this.service.isValidApiKey(apiKey);
-    if (!isValidApiKey) {
+    const apiKeyData = await this.service.isValidApiKey(apiKey);
+    if (!apiKeyData) {
       throw new UnauthorizedException('Invalid api key.');
     }
-    const hasTokens = await this.service.take(apiKey);
+    const hasTokens = await this.service.take(apiKey, apiKeyData);
     if (hasTokens) {
       next();
     } else {

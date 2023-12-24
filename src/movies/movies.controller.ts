@@ -5,8 +5,8 @@ import { MoviesService } from './movies.service';
 export class MoviesController {
   constructor(private readonly service: MoviesService) {}
 
-  @Get('list')
-  movies(): string {
-    return this.service.getHello();
+  @Get('')
+  movies() {
+    return this.service.list();
   }
 }

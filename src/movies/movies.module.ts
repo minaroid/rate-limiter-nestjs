@@ -1,16 +1,10 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MoviesController } from './movies.controller';
 import { MoviesService } from './movies.service';
-import { RateLimiterMiddleware } from 'src/rate-limit/rate-limiter.middleware';
-import { RateLimiterService } from 'src/rate-limit/rate-limiter.service';
 
 @Module({
-  imports: [],
+  // imports: [forwardRef(() => RedisModule)],
   controllers: [MoviesController],
-  providers: [MoviesService, RateLimiterService],
+  providers: [MoviesService],
 })
-export class MoviesModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(RateLimiterMiddleware).forRoutes('/');
-  }
-}
+export class MoviesModule {}

@@ -1,26 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import { REDIS_USERS_API_KEYS } from 'src/constants';
 import { RateLimitInterface } from 'src/interfaces/rate-limit.interface';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class RateLimiterService {
-  // TODO replaces with the actual redis db.
-  private redis: Map<string, any> = new Map([
-    [
-      'MyApiKey',
-      {
-        rateLimit: {
-          capacity: 2,
-          window: 5,
-          tokens: 0,
-          lastRefillTime: 0,
-          nextRefillTime: 0,
-        },
-      },
-    ],
-  ]);
+  constructor(private readonly redis: RedisService) {}
 
-  async isValidApiKey(apiKay: string): Promise<boolean> {
-    return this.redis.has(apiKay);
+  async isValidApiKey(apiKay: string): Promise<Record<string, any>> {
+    return this.redis.hGet(REDIS_USERS_API_KEYS, apiKay ?? '');
   }
 
   refill(rateLimit: RateLimitInterface) {
@@ -36,17 +24,17 @@ export class RateLimiterService {
     rateLimit.tokens = rateLimit.capacity;
   }
 
-  async take(apiKay: string): Promise<boolean> {
-    const data = this.redis.get(apiKay);
+  async take(apiKay: string, data: Record<string, any>): Promise<boolean> {
     const rateLimit: RateLimitInterface = data.rateLimit;
     if (!rateLimit) {
       return true;
     }
+
     this.refill(rateLimit);
 
     if (rateLimit.tokens > 0) {
       rateLimit.tokens -= 1;
-      console.log(rateLimit);
+      await this.redis.hSet(REDIS_USERS_API_KEYS, apiKay, { rateLimit });
       return true;
     }
 
