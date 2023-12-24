@@ -43,14 +43,17 @@ export class RedisService implements OnModuleInit, OnApplicationShutdown {
     await this.client?.disconnect();
   }
 
-  async hSet(key: string, field: string, value: Record<string, any>) {
-    const oldValue = await this.hGet(key, field);
+  async hSetJsonValue(key: string, field: string, value: Record<string, any>) {
+    const oldValue = await this.hGetJsonValue(key, field);
     const parsedOldValue = oldValue ? oldValue : {};
     const newValue = { ...parsedOldValue, ...value };
     return await this.client.hSet(key, field, JSON.stringify(newValue));
   }
 
-  async hGet(key: string, field: string): Promise<Record<string, any> | null> {
+  async hGetJsonValue(
+    key: string,
+    field: string,
+  ): Promise<Record<string, any> | null> {
     const value = await this.client.hGet(key, field);
     if (value) {
       return JSON.parse(value);

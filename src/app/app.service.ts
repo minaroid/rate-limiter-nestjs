@@ -1,20 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { REDIS_USERS_API_KEYS } from 'src/constants';
-import { RedisService } from 'src/redis/redis.service';
-import { v4 as uuidv4 } from 'uuid';
+import { RateLimiterService } from 'src/rate-limit/rate-limiter.service';
 @Injectable()
 export class AppService {
-  constructor(private readonly redis: RedisService) {}
+  constructor(private readonly rateLimiterService: RateLimiterService) {}
 
-  async generateApiKey() {
-    const key = uuidv4();
-    await this.redis.hSet(REDIS_USERS_API_KEYS, key, {
-      // 5 request per 30 seconds.
-      rateLimit: {
-        capacity: 5,
-        window: 30,
-      },
-    });
+  async generateApiKey(): Promise<object> {
+    // 500 requests per 30 seconds.
+    const key = await this.rateLimiterService.createApiKey(500, 30);
     return { key };
   }
 }
